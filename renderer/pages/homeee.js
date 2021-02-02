@@ -9,13 +9,17 @@ class GitHub extends Component {
 	constructor() {
 		super();
 		this.state = {
-			inputted: false,
-			darkMode: false,
-			open: false,
-			username: "",
-			done: null,
 			data: [],
+			done: false,
+			darkMode: false,
+			setDarkMode: false,
 		};
+	}
+
+	async componentDidMount() {
+		const request = await axios.get("https://davidilie.com/api/bg/job/github");
+		this.setState({ data: request.data });
+		this.setState({ done: true });
 	}
 
 	render() {
@@ -24,36 +28,6 @@ class GitHub extends Component {
 				type: this.state.darkMode ? "dark" : "light",
 			},
 		});
-
-		const handleClickOpen = () => {
-			this.setState({open: true})
-		};
-		
-		const handleClose = async () => {
-			this.setState({done: false});
-			this.setState({inputted: true});
-			this.setState({open: false})
-
-			const request = await axios.get(`https://api.github.com/users/${this.state.username}/repos`)
-			const data = request.data;
-			const final = []
-			for (let i = 0; i < data.length; i++) {
-				if (data[i].name !== this.state.username) {
-					final.push({
-						name: data[i].name,
-						url: data[i].url,
-						language: data[i].language
-					})
-				}
-			}
-			this.setState({data: final});
-			this.setState({done: true})
-		};
-
-		const setTextState = (event) => {
-			this.setState({username: event.target.value})
-		}
-
 		return (
 			<material.ThemeProvider theme={theme} style={{ height: "100vh" }}>
 				<Head>
@@ -91,36 +65,6 @@ class GitHub extends Component {
 						</material.Toolbar>
 					</material.AppBar>
 					<material.List>
-						{this.state.inputted === false ? (
-							<div>
-								<material.Button onClick={handleClickOpen}>Please input github username</material.Button>
-								<material.Dialog open={this.state.open} onClose={handleClose} aria-labelledby="form-dialog-title">
-									<material.DialogTitle id="form-dialog-title">Subscribe</material.DialogTitle>
-									<material.DialogContent>
-										<material.DialogContentText>
-											To be able to get your GitHub projects in this list. You will need to put your GitHub username below. Granted this will only fetch your public repositoies
-										</material.DialogContentText>
-										<material.TextField
-										onChange={setTextState}
-										autoFocus
-										margin="dense"
-										id="username"
-										label="GitHub Username"
-										type="username"
-										fullWidth
-										/>
-									</material.DialogContent>
-								<material.DialogActions>
-									<material.Button onClick={handleClose} color="primary">
-									Cancel
-									</material.Button>
-									<material.Button onClick={handleClose} color="primary">
-									Finish
-									</material.Button>
-								</material.DialogActions>
-								</material.Dialog>
-							</div>
-						) : null}
 						{this.state.done === false ? (
 							<material.LinearProgress />
 						) : (
