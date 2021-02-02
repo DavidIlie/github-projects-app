@@ -3,12 +3,16 @@ import Head from "next/head";
 import * as material from "@material-ui/core";
 import axios from "axios";
 
+const { shell } = require("electron");
+
 class GitHub extends Component {
 	constructor() {
 		super();
 		this.state = {
 			data: [],
 			done: false,
+			darkMode: false,
+			setDarkMode: false,
 		};
 	}
 
@@ -19,8 +23,13 @@ class GitHub extends Component {
 	}
 
 	render() {
+		const theme = material.createMuiTheme({
+			palette: {
+				type: this.state.darkMode ? "dark" : "light",
+			},
+		});
 		return (
-			<div>
+			<material.ThemeProvider theme={theme} style={{ height: "100vh" }}>
 				<Head>
 					<link
 						rel="stylesheet"
@@ -31,19 +40,28 @@ class GitHub extends Component {
 						content="minimum-scale=1, initial-scale=1, width=device-width"
 					/>
 				</Head>
-				<material.Paper
-					elevation={0}
-					style={{ padding: 0, margin: 0, backgroundColor: "#fafafa" }}
-				>
+				<material.Paper style={{ height: "97vh" }}>
 					<material.AppBar
 						color="primary"
 						position="static"
 						style={{ height: 64 }}
 					>
-						<material.Toolbar style={{ height: 64 }}>
+						<material.Toolbar>
 							<material.Typography color="inherit">
 								GitHub Projects
 							</material.Typography>
+							<material.FormControlLabel
+								style={{ marginLeft: "2%" }}
+								control={
+									<material.Switch
+										checked={this.state.darkMode}
+										onChange={() =>
+											this.setState({ darkMode: !this.state.darkMode })
+										}
+									/>
+								}
+								label="Dark Mode"
+							/>
 						</material.Toolbar>
 					</material.AppBar>
 					<material.List>
@@ -54,9 +72,9 @@ class GitHub extends Component {
 								const { name, url, language } = repository;
 								return (
 									<material.Tooltip
-										onClick={() => navigator.clipboard.writeText(url)}
-										title="Copy link"
-										aria-label="Copy link"
+										onClick={() => shell.openExternal(url)}
+										title="Open Link"
+										aria-label="Open Link"
 										placement="right-start"
 									>
 										<material.ListItem button key={index}>
@@ -71,7 +89,7 @@ class GitHub extends Component {
 						)}
 					</material.List>
 				</material.Paper>
-			</div>
+			</material.ThemeProvider>
 		);
 	}
 }
