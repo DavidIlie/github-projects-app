@@ -10,7 +10,7 @@ class GitHub extends Component {
 		super();
 		this.state = {
 			inputted: false,
-			darkMode: false,
+			darkMode: true,
 			open: false,
 			username: "",
 			done: false,
@@ -78,9 +78,10 @@ class GitHub extends Component {
 						position="static"
 						style={{ height: 64 }}
 					>
+						<material.CssBaseline />
 						<material.Toolbar>
-							<material.Typography color="inherit">
-								GitHub Projects
+							<material.Typography variant="h5">
+								GitHub Projects Grabber
 							</material.Typography>
 							<material.FormControlLabel
 								style={{ marginLeft: "2%" }}
@@ -99,10 +100,20 @@ class GitHub extends Component {
 					<material.List>
 						{this.state.inputted === false ? (
 							<div>
-								<material.Button onClick={handleClickOpen}>
-									Please input github username
+								<material.Button
+									onClick={handleClickOpen}
+									style={{ marginLeft: "0.5%" }}
+								>
+									Input GitHub Username Here
 								</material.Button>
 								<material.Dialog
+									onKeyUp={(e) => {
+										const ENTER = 13;
+
+										if (e.keyCode === ENTER) {
+											handleClose();
+										}
+									}}
 									open={this.state.open}
 									onClose={handleClose}
 									aria-labelledby="form-dialog-title"
@@ -112,9 +123,9 @@ class GitHub extends Component {
 									</material.DialogTitle>
 									<material.DialogContent>
 										<material.DialogContentText>
-											To be able to get your GitHub projects in this list. You
-											will need to put your GitHub username below. Granted this
-											will only fetch your public repositoies!
+											In order to get GitHub projects in a list, you will need
+											to put your desired GitHub username below. However, This
+											will only fetch public repositories!
 										</material.DialogContentText>
 										<material.TextField
 											onChange={setTextState}
@@ -165,6 +176,7 @@ class GitHub extends Component {
 									);
 								})}
 								<material.Button
+									style={{ marginLeft: "0.5%" }}
 									onClick={() => {
 										window.location.reload(false);
 									}}

@@ -2,7 +2,7 @@
 	"name": "github-projects",
 	"productName": "GitHub Projects",
 	"description": "GitHub Projects Fetcher",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"author": "David Ilie <david@davidilie.com>",
 	"main": "app/background.js",
 	"scripts": {
