@@ -13,7 +13,8 @@ class GitHub extends Component {
 			darkMode: false,
 			open: false,
 			username: "",
-			done: null,
+			done: false,
+			pending: false,
 			data: [],
 		};
 	}
@@ -26,36 +27,41 @@ class GitHub extends Component {
 		});
 
 		const handleClickOpen = () => {
-			this.setState({open: true})
+			this.setState({ open: true });
 		};
-		
-		const handleClose = async () => {
-			this.setState({done: false});
-			this.setState({inputted: true});
-			this.setState({open: false})
 
-			const request = await axios.get(`https://api.github.com/users/${this.state.username}/repos`)
-			const data = request.data;
-			const final = []
-			for (let i = 0; i < data.length; i++) {
-				if (data[i].name !== this.state.username) {
-					final.push({
-						name: data[i].name,
-						url: data[i].url,
-						language: data[i].language
-					})
+		const handleClose = async () => {
+			this.setState({ open: false });
+
+			if (this.state.username !== "") {
+				this.setState({ inputted: true });
+				this.setState({ done: false });
+				this.setState({ pending: true });
+				const request = await axios.get(
+					`https://api.github.com/users/${this.state.username}/repos`
+				);
+				const data = request.data;
+				const final = [];
+				for (let i = 0; i < data.length; i++) {
+					if (data[i].name !== this.state.username) {
+						final.push({
+							name: data[i].name,
+							url: data[i].html_url,
+							language: data[i].language,
+						});
+					}
 				}
+				this.setState({ data: final });
+				this.setState({ done: true });
 			}
-			this.setState({data: final});
-			this.setState({done: true})
 		};
 
 		const setTextState = (event) => {
-			this.setState({username: event.target.value})
-		}
+			this.setState({ username: event.target.value });
+		};
 
 		return (
-			<material.ThemeProvider theme={theme} style={{ height: "100vh" }}>
+			<material.ThemeProvider theme={theme}>
 				<Head>
 					<link
 						rel="stylesheet"
@@ -66,7 +72,7 @@ class GitHub extends Component {
 						content="minimum-scale=1, initial-scale=1, width=device-width"
 					/>
 				</Head>
-				<material.Paper style={{ height: "97vh" }}>
+				<material.Paper style={{ height: "100%" }}>
 					<material.AppBar
 						color="primary"
 						position="static"
@@ -93,55 +99,79 @@ class GitHub extends Component {
 					<material.List>
 						{this.state.inputted === false ? (
 							<div>
-								<material.Button onClick={handleClickOpen}>Please input github username</material.Button>
-								<material.Dialog open={this.state.open} onClose={handleClose} aria-labelledby="form-dialog-title">
-									<material.DialogTitle id="form-dialog-title">Subscribe</material.DialogTitle>
+								<material.Button onClick={handleClickOpen}>
+									Please input github username
+								</material.Button>
+								<material.Dialog
+									open={this.state.open}
+									onClose={handleClose}
+									aria-labelledby="form-dialog-title"
+								>
+									<material.DialogTitle id="form-dialog-title">
+										Enter Username
+									</material.DialogTitle>
 									<material.DialogContent>
 										<material.DialogContentText>
-											To be able to get your GitHub projects in this list. You will need to put your GitHub username below. Granted this will only fetch your public repositoies
+											To be able to get your GitHub projects in this list. You
+											will need to put your GitHub username below. Granted this
+											will only fetch your public repositoies!
 										</material.DialogContentText>
 										<material.TextField
-										onChange={setTextState}
-										autoFocus
-										margin="dense"
-										id="username"
-										label="GitHub Username"
-										type="username"
-										fullWidth
+											onChange={setTextState}
+											autoFocus
+											margin="dense"
+											id="username"
+											label="GitHub Username"
+											type="username"
+											fullWidth
 										/>
 									</material.DialogContent>
-								<material.DialogActions>
-									<material.Button onClick={handleClose} color="primary">
-									Cancel
-									</material.Button>
-									<material.Button onClick={handleClose} color="primary">
-									Finish
-									</material.Button>
-								</material.DialogActions>
+									<material.DialogActions>
+										<material.Button onClick={handleClose} color="primary">
+											Cancel
+										</material.Button>
+										<material.Button onClick={handleClose} color="primary">
+											Finish
+										</material.Button>
+									</material.DialogActions>
 								</material.Dialog>
 							</div>
 						) : null}
 						{this.state.done === false ? (
-							<material.LinearProgress />
+							<div>
+								{this.state.pending === true ? (
+									<material.LinearProgress />
+								) : null}
+							</div>
 						) : (
-							this.state.data.map((repository, index) => {
-								const { name, url, language } = repository;
-								return (
-									<material.Tooltip
-										onClick={() => shell.openExternal(url)}
-										title="Open Link"
-										aria-label="Open Link"
-										placement="right-start"
-									>
-										<material.ListItem button key={index}>
-											<material.ListItemText
-												primary={name}
-												secondary={language}
-											/>
-										</material.ListItem>
-									</material.Tooltip>
-								);
-							})
+							<div>
+								{" "}
+								{this.state.data.map((repository, index) => {
+									const { name, url, language } = repository;
+									return (
+										<material.Tooltip
+											onClick={() => shell.openExternal(url)}
+											title="Open Link"
+											aria-label="Open Link"
+											placement="right-start"
+										>
+											<material.ListItem button key={index}>
+												<material.ListItemText
+													primary={name}
+													secondary={language}
+												/>
+											</material.ListItem>
+										</material.Tooltip>
+									);
+								})}
+								<material.Button
+									onClick={() => {
+										window.location.reload(false);
+									}}
+								>
+									Restart
+								</material.Button>
+							</div>
 						)}
 					</material.List>
 				</material.Paper>
